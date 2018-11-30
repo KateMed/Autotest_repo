@@ -1,0 +1,143 @@
+package com.stc.tests;
+
+import calc.Calculator;
+import org.junit.BeforeClass;
+import static org.junit.Assert.assertTrue;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import org.testng.annotations.DataProvider;
+import java.util.Arrays;
+import java.util.List;
+import java.lang.Object;
+
+import java.lang.Double;
+public class MainTest {
+
+    Calculator calc = new Calculator();
+
+     @DataProvider(name = "SumData", parallel = true)
+    public Object[][] createData0() {
+        return new Object[][]{{"2", "0", 2.0}, {"1", "2", 3.0}, {"-1", "-2", -3.0}, {"1.87", "0.096", 1.966},
+                {"1 ", "2", 3.0}, {"1", "2 ", 3.0}, {" 1", " 2", 3.0}};
+    }
+
+    @DataProvider(name = "DifData", parallel = true)
+    public Object[][] createData1() {
+        return new Object[][]{{"2", "0", 2.0}, {"1", "-2", 3.0}, {"1", "2", -1.0}, {"5.61", "3", 2.61},
+                {"1 ", "2", -1.0}, {"1", "2 ", -1.0}, {" 1", " 2", -1.0}};
+    }
+
+    @DataProvider(name = "DivData", parallel = true)
+    public Object[][] createData2() {
+        return new Object[][]{{"1", "0", Double.POSITIVE_INFINITY}, {"-1", "0", Double.NEGATIVE_INFINITY},
+                {"0", "2", 0.0}, {"1", "-2", -0.5}, {"1", "2", 0.5}, {"5.61", "3", 1.87},
+                {"1 ", "2", 0.5}, {"1 ", "2 ", 0.5}, {" 1", " 2", 0.5}};
+    }
+
+    @DataProvider(name = "MulData", parallel = true)
+    public Object[][] createData3() {
+        return new Object[][]{{"2", "0", 0.0}, {"1", "-2", -2.0}, {"3", "2", 6.0}, {"1.87", "3", 5.61},
+                {"3 ", "2", 6.0}, {"3", "2 ", 6.0}, {" 3", " 2", 6.0}};
+    }
+
+    @DataProvider(name = "ValueErr", parallel = true)
+    public Object[][] createData4() {
+        return new Object[][]{{"", ""}, {" ", " "}, {"a", "b"}, {"NaN", "NaN"}};
+    }
+
+    @DataProvider(name = "LData", parallel = true)
+    public Object[][] createData5() {
+        String b = "1.333333333333333333333333333333333333333333333333";
+        return new Object[][]{{calc.division("2", "3")}, {calc.sum(b, "3")}, {calc.difference(b, "1")}, {calc.multiplication(b, "1")}};
+    }
+
+    @DataProvider(name = "MinMaxData", parallel = true)
+    public Object[][] MMD() {
+        String p_max = Double.MAX_VALUE+"";
+        String n_max = -Double.MAX_VALUE+"";
+        String p_min = Double.MIN_VALUE+"";
+        String n_min = -Double.MIN_VALUE+"";
+        return new Object[][]{{p_max}, {p_min}, {n_max}, {n_min}};
+    }
+//проверка на сложение
+    @Test(dataProvider = "SumData", groups = {"positive", "smoke", "functional"}, timeOut = 1000)
+    public void Sum(String a, String b, Double c) {
+        Assert.assertEquals(calc.sum(a, b), c);
+    }
+//проверка на вычитание
+    @Test(dataProvider = "DifData", groups = {"positive", "functional"}, timeOut = 1000)
+    public void Dif(String a, String b, Double c) {
+        Assert.assertEquals(calc.difference(a, b), c);
+    }
+//проверка на деление
+    @Test(dataProvider = "DivData", groups = {"positive", "functional"}, timeOut = 1000)
+    public void Div(String a, String b, Double c) {
+        Assert.assertEquals(calc.division(a, b), c);
+    }
+//проверка на умножение
+    @Test(dataProvider = "MulData", groups = {"positive", "functional"}, timeOut = 1000)
+    public void Mul(String a, String b, Double c) {
+        Assert.assertEquals(calc.multiplication(a, b), c);
+    }
+
+//проверка на недопустимые на вход значения
+    @Test(expectedExceptions = java.lang.NumberFormatException.class, groups = {"negative", "functional"}, timeOut = 1000, dataProvider = "ValueErr")
+    public void valueerror(String a, String b) {
+        calc.division(a, b);
+        calc.difference(a, b);
+        calc.multiplication(a, b);
+        calc.sum(a, b);
+    }
+//проверка на пробелы
+    @Test(expectedExceptions = java.lang.NumberFormatException.class, groups = {"negative", "functional"}, timeOut = 1000, dataProvider = "ValueErr")
+    public void WhiteSpaceError(String a, String b) {
+        calc.division(a, b);
+        calc.difference(a, b);
+        calc.multiplication(a, b);
+        calc.sum(a, b);
+    }
+//проверка на специальные символы
+    @Test(expectedExceptions = java.lang.NumberFormatException.class, groups = {"negative", "functional"}, timeOut = 1000)
+    public void SSerror() {
+        List<String>  sign = Arrays.asList("#", "!", "$", "%", "&", "'", "*", "+", "-", "/", "=", "?", "^", "_", "`", "{", "}", "|", "(", ")", "~");
+        for (String a : sign) {
+            for (String b : sign) {
+                calc.division(a, b);
+                calc.difference(a, b);
+                calc.multiplication(a, b);
+                calc.sum(a, b);
+            }
+        }
+    }
+//проверка на чтение мин\мах
+    @Test(dataProvider = "MinMaxData", groups = {"negative", "functional"}, timeOut = 1000)
+    public void MaxDoubleData(String a) {
+        calc.division(a, "1");
+        calc.difference(a, "0");
+        calc.multiplication(a, "1");
+        calc.sum(a, "0");
+   }
+//проверка мин\мах как граничных значений
+    @Test(groups = {"negative", "functional"}, timeOut = 1000)
+    public void MaxDoubleData2() {
+        String p_max = Double.MAX_VALUE+"";
+        String n_max = -Double.MAX_VALUE+"";
+        String p_min = Double.MIN_VALUE+"";
+        String n_min = -Double.MIN_VALUE+"";
+        Assert.assertEquals(calc.sum(p_max, "1"),p_max);
+        Assert.assertEquals(calc.difference(n_max, "1"),n_max);
+        Assert.assertEquals(calc.division(p_min, "2"),p_min);//попытка выйти в интервал положительных минимальных значений
+        Assert.assertEquals(calc.division(n_min, "2"),n_min);//попытка выйти в интервал отрицательных минимальных значений
+    }
+//проверка на округление
+    @Test(groups = {"negative", "functional"}, timeOut = 1000, dataProvider = "LData")
+    public void Round(Double x) {
+        String[] splitter = String.valueOf(x).split("\\.");
+        int s = splitter[1].length();
+        assertTrue("округление должно быть меньше 16 знаков", s <= 16);
+    }
+}
+
+
+
+
