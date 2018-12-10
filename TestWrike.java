@@ -1,6 +1,7 @@
 package com.gmail.waylacteal;
 
 import org.junit.runner.RunWith;
+import org.openqa.selenium.JavascriptExecutor;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -18,8 +19,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import java.util.concurrent.TimeUnit;
+import org.openqa.selenium.internal.Locatable;
 import org.openqa.selenium.interactions.Actions;
-
+import com.thoughtworks.selenium.webdriven.commands.GetEval;
 //@RunWith(DataProviderRunner.class)
 public class TestWrike {
     private static WebDriver driver;
@@ -29,7 +31,7 @@ public class TestWrike {
         System.setProperty("webdriver.chrome.driver", "C:\\webdriver\\chromedriver.exe");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
         driver.get("https://www.wrike.com/");
     }
 
@@ -80,6 +82,11 @@ public class TestWrike {
         return S;
     }
 
+    public void openInNewWindow(String url) {
+        ((JavascriptExecutor) driver)
+                .executeScript("window.open(arguments[0])", url);
+    }
+
     @Test
     public void userLogin() {
         /*ArrayList<String> S = Calc();
@@ -100,21 +107,35 @@ public class TestWrike {
         }
         String Page = driver.getCurrentUrl();
         Assert.assertEquals("https://www.wrike.com/resend/", Page);
-    }
-    @Test
-    public void CloseThrFFFFWindow(){
-      WebDriverWait wait = new WebDriverWait(driver, 20);
-        Actions action = new Actions(webdriver);
-        WebElement we = driver.findElement(By.xpath("html/body/div[13]/ul/li[4]/a"));
-        action.moveToElement(we).moveToElement(webdriver.findElement(By.xpath("/expression-here"))).click().build().perform();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("'//div[@class='ZFr60d.CeoRYc']")));
+    //}
+
+    //@Test()
+    //public void resentEmail(){
+        driver.findElement(By.xpath(" //button[@class='wg-btn wg-btn--white wg-btn--hollow button js-button']")).click();
+        boolean noexist = driver.findElements(By.xpath(" //button[@class='wg-btn wg-btn--white wg-btn--hollow button js-button']")).size()>0 ;
+        //System.out.print(noexist);
+        Assert.assertFalse(noexist)
+    //}
+
+
+    //@Test
+    //public void CloseThrFFFFWindow(){
+        WebDriverWait wait = new WebDriverWait(driver, 20);
+        Actions action = new Actions(driver);
+        //WebElement we = driver.findElement(By.xpath("//div[@class='SxbKmc']"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body")));
+        WebElement we = driver.findElement(By.xpath("/html/body"));
+        //action.moveToElement(we).moveToElement(driver.findElement(By.xpath("/html/body/div[6]")));
+        //WebElement we2 = driver.findElement(By.xpath("/html/body/div[6]"));
+        action.moveToElement(we).moveToElement(driver.findElement(By.xpath("/html/body/c-wiz/div/div/div[2]/div[4]/span[1]/div"))).click().build().perform();
+        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("'//div[@class='ZFr60d.CeoRYc']")));
         //WebElement YESNO =driver.findElement(By.xpath("//span[contains( text(),'NO')]"));
         //driver.findElement(By.className("RveJvd.snByac"));
-        driver.findElement(By.xpath("//span[contains( text(),'NO')]")).click();
-    }
+        //driver.findElement(By.xpath("//span[contains( text(),'NO')]")).click();
+    //}
 
-    @Test
-    public void random_element(){
+    //@Test
+    //public void random_element(){
 
         ArrayList<String> S = Calc();
         String S1 = S.get(0);
@@ -129,8 +150,33 @@ public class TestWrike {
         button3.click();
         WebElement button4 = driver.findElement(By.xpath("//form[@name='survey-form']//button[@type='submit']"));
         button4.click();
+        //try {
+        //    Thread.sleep(3000);
+        //} catch (InterruptedException ie) {
+        //}
+        boolean noexist = driver.findElements(By.xpath("//form[@name='survey-form']//button[@type='submit']")).size()>0 ;
+        Assert.assertFalse(noexist);
+    //}
+
+    //@Test
+    //public void Twitter(){
+        //WebElement svgObject = driver.findElement(By.cssSelector("li:nth-child(1) > a > svg"));
+        //openInNewWindow(svgObject.getAttribute("href"));
+        //JavascriptExecutor jse = (JavascriptExecutor)driver;
+        //jse.executeScript("window.scrollBy(0,250)", "");
+        WebElement svgObject = driver.findElement(By.cssSelector("li:nth-child(1) > a > svg"));
+        Actions builder = new Actions(driver);
+        builder.click(svgObject).build().perform();
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException ie) {
+        }
+        String Page = driver.getCurrentUrl();
+        Assert.assertEquals("https://twitter.com/wrike", Page);
+        driver.switchTo().parentFrame();
 
     }
+
 
     @AfterClass
     public static void tearDown() {
