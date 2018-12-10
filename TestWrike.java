@@ -23,6 +23,8 @@ import org.openqa.selenium.internal.Locatable;
 import org.openqa.selenium.interactions.Actions;
 import com.thoughtworks.selenium.webdriven.commands.GetEval;
 //@RunWith(DataProviderRunner.class)
+
+
 public class TestWrike {
     private static WebDriver driver;
 
@@ -31,7 +33,7 @@ public class TestWrike {
         System.setProperty("webdriver.chrome.driver", "C:\\webdriver\\chromedriver.exe");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get("https://www.wrike.com/");
     }
 
@@ -88,13 +90,9 @@ public class TestWrike {
     }
 
     @Test
-    public void userLogin() {
-        /*ArrayList<String> S = Calc();
-        String S1 = S.get(0);
-        String S2 = S.get(1);
-        String S3 = S.get(2);*/
+    public void autotest() {
         String b = Random(6);
-
+ //создание аккаунта со случайным email
         WebElement GetStartForFreeButton = driver.findElement(By.xpath("//div[@class='r']//button[@type='submit']"));
         GetStartForFreeButton.click();
         WebElement BuisnessEmail = driver.findElement(By.xpath("//label[@class='modal-form-trial__label']//input[@placeholder='Enter your business email']"));
@@ -106,42 +104,18 @@ public class TestWrike {
         } catch (InterruptedException ie) {
         }
         String Page = driver.getCurrentUrl();
+ //проверка на исключение
         Assert.assertEquals("https://www.wrike.com/resend/", Page);
-    //}
-
-    //@Test()
-    //public void resentEmail(){
+//Resend email
         driver.findElement(By.xpath(" //button[@class='wg-btn wg-btn--white wg-btn--hollow button js-button']")).click();
         boolean noexist = driver.findElements(By.xpath(" //button[@class='wg-btn wg-btn--white wg-btn--hollow button js-button']")).size()>0 ;
-        //System.out.print(noexist);
-        Assert.assertFalse(noexist)
-    //}
-
-
-    //@Test
-    //public void CloseThrFFFFWindow(){
-        WebDriverWait wait = new WebDriverWait(driver, 20);
-        Actions action = new Actions(driver);
-        //WebElement we = driver.findElement(By.xpath("//div[@class='SxbKmc']"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body")));
-        WebElement we = driver.findElement(By.xpath("/html/body"));
-        //action.moveToElement(we).moveToElement(driver.findElement(By.xpath("/html/body/div[6]")));
-        //WebElement we2 = driver.findElement(By.xpath("/html/body/div[6]"));
-        action.moveToElement(we).moveToElement(driver.findElement(By.xpath("/html/body/c-wiz/div/div/div[2]/div[4]/span[1]/div"))).click().build().perform();
-        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("'//div[@class='ZFr60d.CeoRYc']")));
-        //WebElement YESNO =driver.findElement(By.xpath("//span[contains( text(),'NO')]"));
-        //driver.findElement(By.className("RveJvd.snByac"));
-        //driver.findElement(By.xpath("//span[contains( text(),'NO')]")).click();
-    //}
-
-    //@Test
-    //public void random_element(){
-
+//проверяем с исключением
+        Assert.assertFalse(noexist);
+//случайный выбор ответов в поле слева
         ArrayList<String> S = Calc();
         String S1 = S.get(0);
         String S2 = S.get(1);
         String S3 = S.get(2);
-
         WebElement button = driver.findElement(By.xpath("//button[contains(text(),"+S1+")]"));
         button.click();
         WebElement button2 = driver.findElement(By.xpath("//button[contains(text(),"+S2+")]"));
@@ -155,29 +129,40 @@ public class TestWrike {
         //} catch (InterruptedException ie) {
         //}
         boolean noexist = driver.findElements(By.xpath("//form[@name='survey-form']//button[@type='submit']")).size()>0 ;
+//проверка на исключение
         Assert.assertFalse(noexist);
-    //}
-
-    //@Test
-    //public void Twitter(){
-        //WebElement svgObject = driver.findElement(By.cssSelector("li:nth-child(1) > a > svg"));
-        //openInNewWindow(svgObject.getAttribute("href"));
-        //JavascriptExecutor jse = (JavascriptExecutor)driver;
-        //jse.executeScript("window.scrollBy(0,250)", "");
-        WebElement svgObject = driver.findElement(By.cssSelector("li:nth-child(1) > a > svg"));
-        Actions builder = new Actions(driver);
-        builder.click(svgObject).build().perform();
+//twitter
+        WebElement svgObject = driver.findElement(By.xpath("//a[contains(@href, 'twitter')]"));
+        String new_window_url = svgObject.getAttribute("href");
+        driver.get(new_window_url);
         try {
-            Thread.sleep(30000);
+            Thread.sleep(3000);
         } catch (InterruptedException ie) {
         }
-        String Page = driver.getCurrentUrl();
-        Assert.assertEquals("https://twitter.com/wrike", Page);
-        driver.switchTo().parentFrame();
+        String Page2 = driver.getCurrentUrl();
+//проверка на исключение
+        Assert.assertEquals("https://twitter.com/wrike", Page2);
+        //driver.switchTo().parentFrame();
 
-    }
+   }
 
-
+  /*@Test
+    //public void CloseThrFFFFWindow(){
+        WebDriverWait wait = new WebDriverWait(driver, 20);
+        Actions action = new Actions(driver);
+        //WebElement we = driver.findElement(By.xpath("//div[@class='SxbKmc']"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body")));
+        WebElement we = driver.findElement(By.xpath("/html/body"));
+        //action.moveToElement(we).moveToElement(driver.findElement(By.xpath("/html/body/div[6]")));
+        //WebElement we2 = driver.findElement(By.xpath("/html/body/div[6]"));
+        action.moveToElement(we).moveToElement(driver.findElement(By.xpath("/html/body/c-wiz/div/div/div[2]/div[4]/span[1]/div"))).click().build().perform();
+        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("'//div[@class='ZFr60d.CeoRYc']")));
+        //WebElement YESNO =driver.findElement(By.xpath("//span[contains( text(),'NO')]"));
+        //driver.findElement(By.className("RveJvd.snByac"));
+        //driver.findElement(By.xpath("//span[contains( text(),'NO')]")).click();
+    //}*/
+    
+    
     @AfterClass
     public static void tearDown() {
         driver.quit();
