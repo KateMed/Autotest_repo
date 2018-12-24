@@ -1,6 +1,7 @@
 package com.gmail.waylacteal;
 
-import java.lang.Object;
+import java.util.concurrent.TimeUnit;
+import java.util.Random;
 import java.util.ArrayList;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -10,65 +11,47 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.ElementNotVisibleException;
 
 public class TestWrike {
+
     private static WebDriver driver;
-    public static String Random(int count){
+    //генератор рандомной строки
+    public static String RandomString(int StringSize){
         StringBuilder builder = new StringBuilder();
-        String ahString = "qwertyuiopasdfghjklzxcvbnm0123456789";
-        while (count-- != 0) {
-            int character = (int)(Math.random()*ahString.length());
-            builder.append(ahString.charAt(character));
+        String RandomStringElement = "qwertyuiopasdfghjklzxcvbnm0123456789";
+        while (StringSize-- != 0) {
+            int character = (int)(Math.random()*RandomStringElement.length());
+            builder.append(RandomStringElement.charAt(character));
         }
-        String b = builder.toString();
-        return b;
+        return builder.toString();
     }
-    public static Object[] ButtonsName(){
-
-        ArrayList<String> myArrayList1 = new ArrayList<String>();
-        myArrayList1.add("'Very interested'");
-        myArrayList1.add("'Just looking'");
-
-        ArrayList<String> myArrayList2 = new ArrayList<String>();
-        myArrayList2.add("'6–15'");
-        myArrayList2.add("'1–5'");
-        myArrayList2.add("'16–25'");
-        myArrayList2.add("'26–50'");
-        myArrayList2.add("'50+'");
-
-        ArrayList<String> myArrayList3 = new ArrayList<String>();
-        myArrayList3.add("'Yes'");
-        myArrayList3.add("'No'");
-        myArrayList3.add("'Other'");
-
-        return new Object[]{myArrayList1, myArrayList2, myArrayList3};
+    //генератор случайного ответа
+    public static String[] randomButtonsName() {
+        Random random = new Random();
+        ArrayList<String[]> randomAnsList = new ArrayList<String[]>();
+        String[] answer1Question = new String[]{"'Very interested'", "'Just looking'"};
+        String[] answer2Question = new String[]{"'6–15'", "'1–5'", "'16–25'", "'26–50'", "'50+'"};
+        String[] answer3Question = new String[]{"'Yes'", "'No'", "'Other'"};
+        randomAnsList.add(answer1Question);
+        randomAnsList.add(answer2Question);
+        randomAnsList.add(answer3Question);
+        int[] numberOfAnswer = new int[]{answer1Question.length, answer2Question.length, answer3Question.length};
+        String[] randomAns = new String[3];
+        for (int numAns = 0; numAns < numberOfAnswer.length; numAns++) {
+            String[] answer = randomAnsList.get(numAns);
+            int index = random.nextInt(numberOfAnswer[numAns]);
+            randomAns[numAns] = answer[index];
+        }
+        return randomAns;
     }
-
-    public static String RandomButton(ArrayList myArrList){
-        StringBuilder bt1 = new StringBuilder();
-        int j = (int)(Math.random()*myArrList.size());
-        bt1.append(myArrList.get(j));
-        String bt1S = bt1.toString();
-        return bt1S;
-    }
-
-    public static ArrayList<String> Calc(){
-        Object[] myObj = ButtonsName();
-        ArrayList<String> S = new ArrayList<String>();
-        S.add(RandomButton((ArrayList) myObj[0]));
-        S.add(RandomButton((ArrayList) myObj[1]));
-        S.add(RandomButton((ArrayList) myObj[2]));
-        return S;
-    }
-
+    //ожидание с исключением
     public void sleep(int ms){
         try {
         Thread.sleep(ms);
     } catch (InterruptedException ie) {
     } }
-
+    //проверка на кликабельность с исключением
     public void CheckOnClicable(WebElement element){
         try {
             sleep(5000);
@@ -87,58 +70,50 @@ public class TestWrike {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get("https://www.wrike.com/");
     }
+
     @Test
-
     public void userLogin() {
-
-//создание аккаунта со случайным email
-        String b = Random(6);
+        //создание аккаунта со случайным email и переход на следующую страницу
+        String randomEmail = RandomString(6);
         driver.findElement(By.xpath("//div[@class='r']//button[@type='submit']")).click();
         WebElement BuisnessEmail = driver.findElement(By.xpath("//label[@class='modal-form-trial__label']//input[@placeholder='Enter your business email']"));
-        BuisnessEmail.sendKeys(b + "wpt@wriketask.qaa");
+        BuisnessEmail.sendKeys(randomEmail  + "wpt@wriketask.qaa");
         driver.findElement(By.xpath("//button[contains(text(),'Create my Wrike account')]")).click();
-//проверка перехода на новую страницу
+        //проверка перехода на новую страницу
         sleep(3000);
-        String Page = driver.getCurrentUrl();
-        Assert.assertEquals("https://www.wrike.com/resend/", Page);
-//закрытие фрейма
+        Assert.assertEquals("https://www.wrike.com/resend/", driver.getCurrentUrl());
+        //закрытие всплывающего фрейма
         sleep(6000);
         driver.switchTo().frame( driver.findElement(By.cssSelector("div > iframe")));
         driver.findElement(By.cssSelector(".Pv7Rnc")).click();
         driver.switchTo().defaultContent();
-//Resend email
-        WebElement but = driver.findElement(By.xpath(" //button[@class='wg-btn wg-btn--white wg-btn--hollow button js-button']"));
-        but.click();
-//проверка на удачную отправку формы
+        //Resend email
+        WebElement resendEmailButton = driver.findElement(By.xpath(" //button[@class='wg-btn wg-btn--white wg-btn--hollow button js-button']"));
+        resendEmailButton.click();
+        //проверка на удачную отправку формы
         sleep(3000);
-        Assert.assertFalse(but.isDisplayed());
-//Случайный выбор ответов в меню слева
-        ArrayList<String> S = Calc();
-        String S1 = S.get(0);
-        String S2 = S.get(1);
-        String S3 = S.get(2);
-        WebElement button = driver.findElement(By.xpath("//button[contains(text(),"+S1+")]"));
-        button.click();
-        WebElement button2 = driver.findElement(By.xpath("//button[contains(text(),"+S2+")]"));
-        button2.click();
-        WebElement button3 = driver.findElement(By.xpath("//button[contains(text(),"+S3+")]"));
-        button3.click();
-        if (S3 == "'Other'" ){
-            WebElement butt = driver.findElement(By.xpath("//input[@placeholder='Your comment']"));
-            butt.sendKeys("other");
+        Assert.assertFalse(resendEmailButton.isDisplayed());
+        //Случайный выбор ответов в меню слева и их отправка
+        String[] randomAns = randomButtonsName();
+        for (int i = 0; i < randomAns.length; i++) {
+            WebElement button = driver.findElement(By.xpath("//button[contains(text(),"+randomAns[i]+")]"));
+            button.click();
+            if (randomAns[i] == "'Other'" ){
+                WebElement butt = driver.findElement(By.xpath("//input[@placeholder='Your comment']"));
+                butt.sendKeys("other");
+            }
         }
-        WebElement button4 = driver.findElement(By.xpath("//form[@name='survey-form']//button[@type='submit']"));
-        button4.click();
-//проверка на удачную отправку формы
-        CheckOnClicable(button4);
-//twitter
-        WebElement svgObject = driver.findElement(By.xpath("//a[contains(@href, 'twitter')]"));
-        String new_window_url = svgObject.getAttribute("href");
+        WebElement SubmitButton = driver.findElement(By.xpath("//form[@name='survey-form']//button[@type='submit']"));
+        SubmitButton.click();
+        //проверка на удачную отправку формы
+        CheckOnClicable(SubmitButton);
+        //проверка на удачную ссылку на twitter
+        WebElement twitterButton = driver.findElement(By.xpath("//a[contains(@href, 'twitter')]"));
+        String new_window_url = twitterButton.getAttribute("href");
+        //проверка url
         driver.get(new_window_url);
         sleep(3000);
-        String Page2 = driver.getCurrentUrl();
-//проверка url
-        Assert.assertEquals("https://twitter.com/wrike", Page2);
+        Assert.assertEquals("https://twitter.com/wrike", driver.getCurrentUrl());
         driver.switchTo().parentFrame();
         }
 
